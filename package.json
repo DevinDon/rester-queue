@@ -2,7 +2,7 @@
   "name": "@rester/queue",
   "version": "0.1.0",
   "description": "Rester Delay Queue.",
-  "main": "dist/bundle.js",
+  "main": "dist/index.js",
   "directories": {
     "doc": "docs",
     "example": "demo",
