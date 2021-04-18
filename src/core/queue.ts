@@ -8,13 +8,12 @@ export class Queue {
 
   private emitter: EventEmitter = new EventEmitter();
   private redis: Redis;
-  private readableRedis: Redis;
   private eventRedis: Redis;
   private iterators: Map<string, AsyncIterable<Message & WithID>> = new Map();
+  private topicRedises: Map<string, Redis> = new Map();
 
-  constructor(config: RedisOptions) {
+  constructor(private config: RedisOptions) {
     this.redis = new IORedis(config);
-    this.readableRedis = new IORedis(config);
     this.eventRedis = new IORedis(config);
     this.init();
   }
@@ -54,23 +53,23 @@ export class Queue {
   }
 
   consume({ topic }: Pick<Message, 'topic'>): AsyncIterable<Message & WithID> {
+    if (this.topicRedises.has(topic) !== true) {
+      this.topicRedises.set(topic, new IORedis(this.config));
+    }
     if (this.iterators.has(topic) !== true) {
-      this.iterators.set(
-        topic,
-        {
-          [Symbol.asyncIterator]: () => ({
-            next: async () => {
-              const [, message] = await this.readableRedis.blpop(topic, 0);
-              return { done: false, value: parse(message) };
-            },
-          }),
-        },
-      );
+      this.iterators.set(topic, {
+        [Symbol.asyncIterator]: () => ({
+          next: async () => {
+            const [, message] = await this.topicRedises.get(topic)!.blpop(topic, 0);
+            return { done: false, value: parse(message) };
+          },
+        }),
+      });
     }
     return this.iterators.get(topic)!;
   }
 
-  on(event: 'message', action: () => any) {
+  on(event: 'message', action: Function) {
     this.emitter.on(event, () => action());
   }
 
