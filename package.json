@@ -1,0 +1,61 @@
+{
+  "name": "template.typescript",
+  "version": "0.0.0",
+  "description": "TypeScript Template.",
+  "main": "dist/bundle.js",
+  "directories": {
+    "doc": "docs",
+    "example": "src/demo",
+    "test": "src/test"
+  },
+  "files": [
+    "dist",
+    "docs"
+  ],
+  "scripts": {
+    "build": "./scripts/build.sh",
+    "clean": "./scripts/clean.sh",
+    "debug": "./scripts/debug.sh",
+    "init": "./scripts/init.sh",
+    "lint": "./scripts/lint.sh",
+    "pack": "npm run clean && npm run build && npm run push",
+    "push": "./scripts/push.sh",
+    "start": "npm run start:dev",
+    "start:dev": "MODE=DEV ./scripts/start.sh",
+    "start:prod": "MODE=PROD ./scripts/start.sh",
+    "test": "./scripts/test.sh",
+    "watch": "tsc -w"
+  },
+  "keywords": [
+    "typescript",
+    "project"
+  ],
+  "author": "IInfinity <i.inf@outlook.com> (https://blog.don.red/)",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@types/jasmine": "3.6.9",
+    "@types/node": "14.14.39",
+    "@typescript-eslint/eslint-plugin": "4.22.0",
+    "@typescript-eslint/parser": "4.22.0",
+    "clean-webpack-plugin": "3.0.0",
+    "copy-webpack-plugin": "8.1.1",
+    "cross-env": "7.0.3",
+    "eslint": "7.24.0",
+    "jasmine": "3.7.0",
+    "jasmine-console-reporter": "3.1.0",
+    "ts-loader": "8.1.0",
+    "ts-node": "9.1.1",
+    "typescript": "4.2.4",
+    "webpack": "5.33.2",
+    "webpack-cli": "4.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevinDon/template.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DevinDon/template/issues"
+  },
+  "homepage": "https://github.com/DevinDon/template/tree/typescript"
+}
