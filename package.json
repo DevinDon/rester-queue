@@ -5,8 +5,8 @@
   "main": "dist/bundle.js",
   "directories": {
     "doc": "docs",
-    "example": "src/demo",
-    "test": "src/test"
+    "example": "demo",
+    "test": "test"
   },
   "files": [
     "dist",
