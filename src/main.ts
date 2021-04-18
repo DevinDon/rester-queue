@@ -10,15 +10,17 @@ setTimeout(
   () => {
     const delayMessage: Message = {
       topic: 'list',
-      body: { name: 'Delay Message' },
-      delay: 10000,
+      body: 'Delay Message',
+      delay: 3000,
     };
-    queue.produce(delayMessage);
     const immediateMessage = {
       topic: 'list',
-      body: { name: 'Immediate Message' },
+      body: 'Immediate Message',
     };
-    queue.produce(immediateMessage);
+    for (let i = 10; i; i--) {
+      queue.produce(immediateMessage);
+      queue.produce(delayMessage);
+    }
   },
   0,
 );
