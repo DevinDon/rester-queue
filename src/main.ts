@@ -1,11 +1,32 @@
-type Name = string;
+import { Queue } from './core';
+import { Message } from './interfaces';
+import { logger } from '@rester/logger';
 
-export function hello(name: Name): string {
-  return `Hello, ${name}!`;
-}
+const queue = new Queue({
+  password: 'dev-redis',
+});
 
-export async function asyncHello(name: Name): Promise<string> {
-  return `Hello, ${name}!`;
-}
+setTimeout(
+  () => {
+    const delayMessage: Message = {
+      topic: 'list',
+      body: { name: 'Delay Message' },
+      delay: 10000,
+    };
+    queue.produce(delayMessage);
+    const immediateMessage = {
+      topic: 'list',
+      body: { name: 'Immediate Message' },
+    };
+    queue.produce(immediateMessage);
+  },
+  0,
+);
 
-process.stdout.write(hello('world'));
+(async () => {
+  logger.info('Start queue.');
+  const topic = queue.consume({ topic: 'list' });
+  for await (const message of topic) {
+    logger.info('Got message:', JSON.stringify(message));
+  }
+})();
