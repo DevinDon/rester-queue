@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import IORedis, { Redis, RedisOptions } from 'ioredis';
 import { v4 as uuid, validate } from 'uuid';
 import { Message, WithID } from '../interfaces';
-import { parse, stringify } from '../utils';
+import { getDataKey, parse, parseID, stringify } from '../utils';
 
 export class Queue {
 
@@ -16,6 +16,7 @@ export class Queue {
     this.redis = new IORedis(config);
     this.eventRedis = new IORedis(config);
     this.init();
+    this.recover();
   }
 
   private async init() {
@@ -23,20 +24,35 @@ export class Queue {
     await this.eventRedis.subscribe('__keyevent@0__:expired');
     this.eventRedis.on('message', (_, id) => {
       if (!validate(id)) { return; }
-      return this.redis
-        .get(id + '-data')
-        .then(value => parse(value!))
+      return this.getMessage(id)
         .then(message => this.push(message));
     });
+  }
+
+  private async recover() {
+    const keys = await this.redis.keys('data-*');
+    for (const key of keys) {
+      const id = parseID(key);
+      if (id && !await this.redis.get(id)) {
+        const message = await this.getMessage(id);
+        await this.push(message);
+      }
+    }
   }
 
   private async push({ id, topic, ...rest }: Message & WithID) {
     await this.redis
       .multi()
-      .del(id + '-data')
+      .del(getDataKey(id))
       .rpush(topic, stringify({ id, topic, ...rest }))
       .exec();
     this.emitter.emit('message');
+  }
+
+  private async getMessage(id: string) {
+    return this.redis
+      .get(getDataKey(id))
+      .then(value => value ? parse(value) : undefined);
   }
 
   async produce({ topic, body, delay }: Message) {
@@ -44,7 +60,7 @@ export class Queue {
     if (typeof delay === 'number' && delay > 0) {
       await this.redis.multi()
         .set(id, '')
-        .set(id + '-data', stringify({ id, topic, body, delay }))
+        .set(getDataKey(id), stringify({ id, topic, body, delay }))
         .pexpireat(id, Date.now() + delay)
         .exec();
     } else {
