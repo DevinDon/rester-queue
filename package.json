@@ -1,7 +1,7 @@
 {
-  "name": "template.typescript",
-  "version": "0.0.0",
-  "description": "TypeScript Template.",
+  "name": "@rester/queue",
+  "version": "0.1.0",
+  "description": "Rester Delay Queue.",
   "main": "dist/bundle.js",
   "directories": {
     "doc": "docs",
@@ -34,8 +34,10 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
+    "@types/ioredis": "^4.22.3",
     "@types/jasmine": "3.6.9",
     "@types/node": "14.14.39",
+    "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "4.22.0",
     "@typescript-eslint/parser": "4.22.0",
     "clean-webpack-plugin": "3.0.0",
@@ -52,10 +54,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DevinDon/template.git"
+    "url": "git+https://github.com/DevinDon/rester-queue.git"
   },
   "bugs": {
-    "url": "https://github.com/DevinDon/template/issues"
+    "url": "https://github.com/DevinDon/rester-queue/issues"
   },
-  "homepage": "https://github.com/DevinDon/template/tree/typescript"
+  "homepage": "https://github.com/DevinDon/rester-queue",
+  "dependencies": {
+    "ioredis": "^4.26.0",
+    "uuid": "^8.3.2"
+  }
 }
