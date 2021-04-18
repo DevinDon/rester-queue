@@ -1,8 +1,8 @@
-import { Queue } from './core';
-import { Message } from './interfaces';
 import { logger } from '@rester/logger';
+import { Queue } from '../src/core';
+import { Message } from '../src/interfaces';
 
-const queue = new Queue({
+export const queue = new Queue({
   password: 'dev-redis',
 });
 
