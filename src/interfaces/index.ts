@@ -1,3 +1,5 @@
+import { RedisOptions } from 'ioredis';
+
 export enum TimeUnit {
   MILLISECOND = 'MILLISECOND',
   SECOND = 'SECOND',
@@ -14,6 +16,12 @@ export interface Message<T = any> {
   delay?: number;
 }
 
-export interface WithID {
+export interface MessageID {
   id: string;
 }
+
+export type FullMessage<T = any> = Message<T> & MessageID;
+
+export type MessageTopic = Pick<Message, 'topic'>;
+
+export type RedisConfig = RedisOptions;
