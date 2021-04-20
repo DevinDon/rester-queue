@@ -1,32 +1,18 @@
-# README
+# 基于 Redis 的延迟消息队列
 
-# Debug
+## 实时消息的设计思路（List 版本）
 
-If you use VSCode, try below code to debug your project:
+使用 Redis 的队列 `List` 特性，为每一个 `Topic` 指定一个列表，并使用 `brpop` 来进行阻塞式查询。
 
-```json
-{
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug: Currect File",
-      "runtimeArgs": [
-        "-r",
-        "ts-node/register"
-      ],
-      "args": [
-        "${relativeFile}"
-      ],
-      "sourceMaps": true,
-      "cwd": "${workspaceFolder}",
-      "protocol": "inspector"
-    }
-  ]
-}
+当使用 `lpush` 向队列中新增了消息之后，`brpop` 就可以获取到消息。
 
-```
+这是基于 PULL 模型设计的队列。
+
+## 延迟消息的设计思路
+
+使用 Redis 过期与过期事件订阅的特性。
+
+1. 首先，为每一条延迟消息生成 `UUID` 并设置为 Key，指定过期时间
+2. 随后，将消息体写入 Key 为 `data-${UUID}` 的 Body 中
+3. 当触发过期事件时，获取过期的 Key 即 `UUID`，并将 `data-${UUID}` 中的 Body 使用 `lpush` 推入指定的 `Topic` 中
+4. 使用之前实时队列的方式拉取消息
