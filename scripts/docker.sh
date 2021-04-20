@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 
-docker network create dev
-docker rm -f dev-redis
-
-docker run -d \
-  --name dev-redis \
-  -p 6379:6379 \
-  -v dev-redis:/data \
-  --network dev \
-  redis:6.0.9 \
-  redis-server --requirepass "dev-redis" --notify-keyspace-events "Ex"
+if [ "$1" = "up" ]; then
+  docker-compose -f scripts/redis-cluster/docker-compose.yaml up $2
+else
+  docker-compose -f scripts/redis-cluster/docker-compose.yaml down
+  docker ps -a | grep rester-redis- | awk '{ print $1 }' | xargs docker rm -f
+  docker volume ls | grep redis-cluster | awk '{ print $2 }' | xargs docker volume rm
+fi
