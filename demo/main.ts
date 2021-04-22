@@ -1,6 +1,5 @@
 import { logger } from '@rester/logger';
-import { ResterBroker } from '../src/core';
-import { Message } from '../src/interfaces';
+import { Message, ResterBroker } from '../src';
 
 export const queue = new ResterBroker({
   nodes: [
