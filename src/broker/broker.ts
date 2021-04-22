@@ -1,8 +1,11 @@
 import EventEmitter from 'events';
 import { Cluster, NodeRole, Redis } from 'ioredis';
 import { v4 as uuid, validate } from 'uuid';
-import type { FullMessage, Message, MessageTopic, ResterQueueConfig } from '../interfaces';
-import { DATA_SUFFIX, getDataKey, parse, parseID, stringify } from '../utils';
+import type { FullMessage, Message, MessageTopic } from '../common/interfaces';
+import { parseMessage, stringifyMessage } from '../common/utils';
+import { DATA_SUFFIX } from './constants';
+import type { ResterBrokerConfig } from './interfaces';
+import { getDataKey, parseID } from './utils';
 
 /**
  * 基于 Redis 的延迟消息队列 Broker。
@@ -22,10 +25,10 @@ export class ResterBroker {
   /**
    * 创建一个基于 Redis 的延迟消息队列，仅支持使用 Redis Cluster 作为底层连接。
    *
-   * @param {RedisConfig} redisConfig Redis 连接配置
+   * @param {ResterBrokerConfig} config Broker 的 Redis Cluster 连接配置
    */
   constructor(
-    private config: ResterQueueConfig,
+    private config: ResterBrokerConfig,
   ) {
     this.redis.default = this.create('default-redis-client');
     this.redis.event = this.create('event-redis-client');
@@ -89,7 +92,7 @@ export class ResterBroker {
    */
   private async push({ id, topic, ...rest }: FullMessage) {
     await this.redis.default.del(getDataKey(id));
-    await this.redis.default.rpush(topic, stringify({ id, topic, ...rest }));
+    await this.redis.default.rpush(topic, stringifyMessage({ id, topic, ...rest }));
     this.emitter.emit('message');
   }
 
@@ -102,7 +105,7 @@ export class ResterBroker {
   private async getMessage(id: string): Promise<FullMessage | undefined> {
     return this.redis.default
       .get(getDataKey(id))
-      .then(value => value ? parse(value) : undefined);
+      .then(value => value ? parseMessage(value) : undefined);
   }
 
   /**
@@ -115,7 +118,7 @@ export class ResterBroker {
     const id = uuid();
     if (typeof delay === 'number' && delay > 0) {
       await this.redis.default.set(id, '');
-      await this.redis.default.set(getDataKey(id), stringify({ id, topic, body, delay }));
+      await this.redis.default.set(getDataKey(id), stringifyMessage({ id, topic, body, delay }));
       await this.redis.default.pexpireat(id, Date.now() + delay);
     } else {
       await this.push({ id, topic, body, delay });
@@ -159,7 +162,7 @@ export class ResterBroker {
       this.topicRedises.set(topic, this.create(topic));
     }
     const result = await this.topicRedises.get(topic)!.blpop(topic, timeout / 1000);
-    return result ? parse(result[1]) : undefined;
+    return result ? parseMessage(result[1]) : undefined;
   }
 
   /**
