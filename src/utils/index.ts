@@ -10,9 +10,11 @@ export const parse = (input: string) => {
   }
 };
 
-export const getDataKey = (id: string) => 'data-' + id;
+export const DATA_SUFFIX = '-data';
+
+export const getDataKey = (id: string) => id + DATA_SUFFIX;
 
 export const parseID = (key: string) => {
-  const [_, id] = key.split('data-');
+  const [id] = key.split(DATA_SUFFIX);
   return id && validate(id) ? id : undefined;
 };
