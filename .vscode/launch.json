@@ -13,6 +13,7 @@
       ],
       "runtimeArgs": [
         "--require=ts-node/register",
+        "--unhandled-rejections=strict",
       ],
       "sourceMaps": true,
       "protocol": "inspector",
@@ -23,7 +24,8 @@
       "request": "launch",
       "name": "Lanuch: Current JS File",
       "args": [
-        "${relativeFile}"
+        "${relativeFile}",
+        "--unhandled-rejections=strict",
       ],
       "sourceMaps": true,
       "protocol": "inspector",
@@ -37,7 +39,8 @@
       "args": [
         "--require=ts-node/register",
         "--config=src/test/jasmine.json",
-        "--reporter=jasmine-console-reporter"
+        "--reporter=jasmine-console-reporter",
+        "--unhandled-rejections=strict",
       ],
       "sourceMaps": true,
       "protocol": "inspector",
